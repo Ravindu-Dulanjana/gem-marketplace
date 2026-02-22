@@ -29,27 +29,8 @@ export async function proxy(request: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // Protect seller dashboard routes
-  if (request.nextUrl.pathname.startsWith("/seller/dashboard")) {
-    if (!user) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/seller/login";
-      return NextResponse.redirect(url);
-    }
-  }
-
-  // Protect admin routes (role check happens in admin layout)
-  if (request.nextUrl.pathname.startsWith("/admin")) {
-    if (!user) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/seller/login";
-      return NextResponse.redirect(url);
-    }
-  }
+  // Refresh the auth session so it doesn't expire
+  await supabase.auth.getUser();
 
   // Ensure session ID cookie exists for guest features (wishlist, recently viewed)
   const SESSION_COOKIE = "gem_session_id";
@@ -61,17 +42,6 @@ export async function proxy(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 365,
       path: "/",
     });
-  }
-
-  // Redirect logged-in sellers away from login/register
-  if (
-    user &&
-    (request.nextUrl.pathname === "/seller/login" ||
-      request.nextUrl.pathname === "/seller/register")
-  ) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/seller/dashboard";
-    return NextResponse.redirect(url);
   }
 
   return supabaseResponse;
