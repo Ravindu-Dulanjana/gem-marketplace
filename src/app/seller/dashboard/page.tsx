@@ -152,7 +152,24 @@ export default async function SellerDashboardPage() {
         </div>
 
         {/* Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Link
+            href="/seller/dashboard/listings"
+            className="flex items-center gap-4 p-6 bg-card-bg border border-card-border rounded-xl hover:border-gold/50 transition-all"
+          >
+            <div className="w-12 h-12 flex items-center justify-center rounded-full bg-gold/10">
+              <Package className="text-gold" size={22} />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">
+                My Listings
+              </h3>
+              <p className="text-xs text-muted mt-0.5">
+                View, edit & manage your gems
+              </p>
+            </div>
+          </Link>
+
           <Link
             href={approvalStatus === "approved" ? "/seller/dashboard/listings/new" : "#"}
             className={`flex items-center gap-4 p-6 bg-card-bg border border-card-border rounded-xl transition-all ${
