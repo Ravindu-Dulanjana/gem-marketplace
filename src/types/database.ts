@@ -43,6 +43,7 @@ export interface Gem {
   origin: string | null;
   dimensions: string | null;
   certification: string | null;
+  certificate_url: string | null;
   price_type: PriceType;
   price: number | null;
   currency: string;

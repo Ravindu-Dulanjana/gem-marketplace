@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Loader2, X, Upload, ImageIcon } from "lucide-react";
+import { Loader2, X, Upload, ImageIcon, FileText, Trash2 } from "lucide-react";
 import { GEM_SHAPES, GEM_COLORS, GEM_TYPES, TREATMENTS, CLARITY_OPTIONS } from "@/lib/constants";
 import type { Gem, GemImage, Category } from "@/types/database";
 
@@ -21,6 +21,10 @@ export default function GemForm({ gem, categories, action, submitLabel }: GemFor
   const [existingImages, setExistingImages] = useState<GemImage[]>(gem?.images || []);
   const [deletedImageIds, setDeletedImageIds] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [certificateFile, setCertificateFile] = useState<File | null>(null);
+  const [certificatePreview, setCertificatePreview] = useState<string | null>(null);
+  const [existingCertificate, setExistingCertificate] = useState<string | null>(gem?.certificate_url || null);
+  const [removeCertificate, setRemoveCertificate] = useState(false);
 
   function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files || []);
@@ -67,6 +71,15 @@ export default function GemForm({ gem, categories, action, submitLabel }: GemFor
     // Add deleted image IDs
     if (deletedImageIds.length > 0) {
       formData.set("deleted_images", JSON.stringify(deletedImageIds));
+    }
+
+    // Handle certificate
+    formData.delete("certificate_file");
+    if (certificateFile) {
+      formData.set("certificate_file", certificateFile);
+    }
+    if (removeCertificate) {
+      formData.set("remove_certificate", "true");
     }
 
     const result = await action(formData);
@@ -254,6 +267,69 @@ export default function GemForm({ gem, categories, action, submitLabel }: GemFor
               className="w-full bg-background border border-card-border rounded-lg px-4 py-2.5 text-foreground placeholder:text-muted/50 focus:outline-none focus:border-gold transition-colors"
               placeholder="e.g., GIA, GRS, Gubelin"
             />
+          </div>
+
+          <div className="sm:col-span-2 md:col-span-3">
+            <label className="block text-sm text-muted mb-1.5">Certificate Document</label>
+            {existingCertificate && !removeCertificate ? (
+              <div className="flex items-center gap-3 p-3 bg-background border border-card-border rounded-lg">
+                <FileText className="text-gold shrink-0" size={20} />
+                <span className="text-sm text-foreground truncate flex-1">
+                  Current certificate uploaded
+                </span>
+                <a
+                  href={existingCertificate}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-gold hover:text-gold-light transition-colors"
+                >
+                  View
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setRemoveCertificate(true)}
+                  className="p-1 text-muted hover:text-red-400 transition-colors"
+                  title="Remove certificate"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            ) : certificateFile ? (
+              <div className="flex items-center gap-3 p-3 bg-background border border-gold/30 rounded-lg">
+                <FileText className="text-gold shrink-0" size={20} />
+                <span className="text-sm text-foreground truncate flex-1">
+                  {certificateFile.name}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCertificateFile(null);
+                    setCertificatePreview(null);
+                  }}
+                  className="p-1 text-muted hover:text-red-400 transition-colors"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ) : (
+              <label className="flex items-center gap-3 p-3 border border-dashed border-card-border rounded-lg cursor-pointer hover:border-gold/50 transition-colors">
+                <Upload className="text-muted" size={18} />
+                <span className="text-sm text-muted">Upload certificate (PDF, JPG, PNG)</span>
+                <input
+                  type="file"
+                  name="certificate_file"
+                  accept=".pdf,.jpg,.jpeg,.png,.webp"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setCertificateFile(file);
+                      setCertificatePreview(file.name);
+                    }
+                  }}
+                  className="hidden"
+                />
+              </label>
+            )}
           </div>
         </div>
       </div>

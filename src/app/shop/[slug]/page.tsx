@@ -3,7 +3,7 @@ import { getSessionId } from "@/lib/session";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ArrowLeft, User } from "lucide-react";
+import { ArrowLeft, User, FileText } from "lucide-react";
 import ImageGallery from "@/components/ImageGallery";
 import InquiryForm from "@/components/InquiryForm";
 import SimilarGems from "@/components/SimilarGems";
@@ -167,6 +167,24 @@ export default async function GemDetailPage({
                 ))}
               </div>
             </div>
+
+            {/* Certificate */}
+            {gem.certificate_url && (
+              <div className="mb-6">
+                <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-3">
+                  Certificate
+                </h3>
+                <a
+                  href={gem.certificate_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-card-bg border border-card-border rounded-lg text-sm text-gold hover:border-gold transition-colors"
+                >
+                  <FileText size={16} />
+                  View Certificate
+                </a>
+              </div>
+            )}
 
             {/* Description */}
             {gem.description && (

@@ -64,6 +64,7 @@ CREATE TABLE gems (
   origin TEXT,
   dimensions TEXT,
   certification TEXT,
+  certificate_url TEXT,
   price_type TEXT NOT NULL DEFAULT 'request' CHECK (price_type IN ('fixed', 'request')),
   price DECIMAL(12, 2),
   currency TEXT NOT NULL DEFAULT 'USD',

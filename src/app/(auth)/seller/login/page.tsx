@@ -32,8 +32,8 @@ export default function SellerLoginPage() {
       return;
     }
 
-    router.push("/seller/dashboard");
     router.refresh();
+    window.location.href = "/seller/dashboard";
   }
 
   return (

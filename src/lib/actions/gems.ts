@@ -41,6 +41,23 @@ export async function createGem(formData: FormData) {
 
   const slug = generateSlug(title);
 
+  // Handle certificate upload
+  let certificateUrl: string | null = null;
+  const certFile = formData.get("certificate_file") as File;
+  if (certFile && certFile.size > 0) {
+    const certExt = certFile.name.split(".").pop();
+    const certPath = `${user.id}/certificates/${Date.now()}.${certExt}`;
+    const { error: certUploadError } = await supabase.storage
+      .from("certifications")
+      .upload(certPath, certFile);
+    if (!certUploadError) {
+      const { data: { publicUrl } } = supabase.storage
+        .from("certifications")
+        .getPublicUrl(certPath);
+      certificateUrl = publicUrl;
+    }
+  }
+
   const { data: gem, error } = await supabase
     .from("gems")
     .insert({
@@ -57,6 +74,7 @@ export async function createGem(formData: FormData) {
       origin: origin || null,
       dimensions: dimensions || null,
       certification: certification || null,
+      certificate_url: certificateUrl,
       price_type: priceType || "request",
       price: price ? parseFloat(price) : null,
       category_id: categoryId || null,
@@ -127,25 +145,53 @@ export async function updateGem(gemId: string, formData: FormData) {
   const categoryId = formData.get("category_id") as string;
   const status = (formData.get("status") as string) || "pending";
 
+  // Handle certificate
+  let certificateUrl: string | null | undefined = undefined; // undefined = no change
+  const removeCert = formData.get("remove_certificate") === "true";
+  const certFile = formData.get("certificate_file") as File;
+
+  if (removeCert) {
+    certificateUrl = null;
+  }
+  if (certFile && certFile.size > 0) {
+    const certExt = certFile.name.split(".").pop();
+    const certPath = `${user.id}/certificates/${Date.now()}.${certExt}`;
+    const { error: certUploadError } = await supabase.storage
+      .from("certifications")
+      .upload(certPath, certFile);
+    if (!certUploadError) {
+      const { data: { publicUrl } } = supabase.storage
+        .from("certifications")
+        .getPublicUrl(certPath);
+      certificateUrl = publicUrl;
+    }
+  }
+
+  const updateData: Record<string, unknown> = {
+    title,
+    description: description || null,
+    gem_type: gemType,
+    carat_weight: caratWeight ? parseFloat(caratWeight) : null,
+    shape: shape || null,
+    color: color || null,
+    clarity: clarity || null,
+    treatment: treatment || null,
+    origin: origin || null,
+    dimensions: dimensions || null,
+    certification: certification || null,
+    price_type: priceType || "request",
+    price: price ? parseFloat(price) : null,
+    category_id: categoryId || null,
+    status,
+  };
+
+  if (certificateUrl !== undefined) {
+    updateData.certificate_url = certificateUrl;
+  }
+
   const { error } = await supabase
     .from("gems")
-    .update({
-      title,
-      description: description || null,
-      gem_type: gemType,
-      carat_weight: caratWeight ? parseFloat(caratWeight) : null,
-      shape: shape || null,
-      color: color || null,
-      clarity: clarity || null,
-      treatment: treatment || null,
-      origin: origin || null,
-      dimensions: dimensions || null,
-      certification: certification || null,
-      price_type: priceType || "request",
-      price: price ? parseFloat(price) : null,
-      category_id: categoryId || null,
-      status,
-    })
+    .update(updateData)
     .eq("id", gemId)
     .eq("seller_id", user.id);
 
