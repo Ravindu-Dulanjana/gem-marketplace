@@ -147,17 +147,17 @@ export default async function SellerListingsPage() {
                   <div className="flex items-center gap-2 shrink-0">
                     <Link
                       href={`/shop/${gem.slug}`}
-                      className="p-2 text-muted hover:text-foreground transition-colors"
-                      title="View"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-muted hover:text-foreground border border-card-border rounded-lg transition-colors"
                     >
-                      <Eye size={16} />
+                      <Eye size={14} />
+                      View
                     </Link>
                     <Link
                       href={`/seller/dashboard/listings/${gem.id}/edit`}
-                      className="p-2 text-muted hover:text-gold transition-colors"
-                      title="Edit"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-gold border border-gold/30 rounded-lg hover:bg-gold/10 transition-colors"
                     >
-                      <Edit size={16} />
+                      <Edit size={14} />
+                      Edit
                     </Link>
                     <form
                       action={async () => {
@@ -167,10 +167,10 @@ export default async function SellerListingsPage() {
                     >
                       <button
                         type="submit"
-                        className="p-2 text-muted hover:text-red-400 transition-colors"
-                        title="Delete"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-muted hover:text-red-400 border border-card-border hover:border-red-400/30 rounded-lg transition-colors"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} />
+                        Delete
                       </button>
                     </form>
                   </div>
