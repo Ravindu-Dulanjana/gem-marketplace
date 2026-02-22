@@ -42,24 +42,11 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Protect admin routes
+  // Protect admin routes (role check happens in admin layout)
   if (request.nextUrl.pathname.startsWith("/admin")) {
     if (!user) {
       const url = request.nextUrl.clone();
       url.pathname = "/seller/login";
-      return NextResponse.redirect(url);
-    }
-
-    // Check if user is admin
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    if (profile?.role !== "admin") {
-      const url = request.nextUrl.clone();
-      url.pathname = "/";
       return NextResponse.redirect(url);
     }
   }
