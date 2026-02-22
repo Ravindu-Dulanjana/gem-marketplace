@@ -64,6 +64,18 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Ensure session ID cookie exists for guest features (wishlist, recently viewed)
+  const SESSION_COOKIE = "gem_session_id";
+  if (!request.cookies.get(SESSION_COOKIE)) {
+    const sessionId = crypto.randomUUID();
+    supabaseResponse.cookies.set(SESSION_COOKIE, sessionId, {
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 365,
+      path: "/",
+    });
+  }
+
   // Redirect logged-in sellers away from login/register
   if (
     user &&

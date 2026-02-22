@@ -133,3 +133,41 @@ export async function deleteReview(reviewId: string) {
   revalidatePath("/admin");
   return { success: true };
 }
+
+export async function addCategory(formData: FormData) {
+  const { supabase } = await requireAdmin();
+
+  const name = formData.get("name") as string;
+  const slug = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
+  // Get current max display_order
+  const { data: existing } = await supabase
+    .from("categories")
+    .select("display_order")
+    .order("display_order", { ascending: false })
+    .limit(1);
+
+  const maxOrder = existing?.[0]?.display_order || 0;
+
+  await supabase.from("categories").insert({
+    name,
+    slug,
+    display_order: maxOrder + 1,
+  });
+
+  revalidatePath("/admin/categories");
+}
+
+export async function deleteCategory(categoryId: string) {
+  const { supabase } = await requireAdmin();
+
+  await supabase
+    .from("categories")
+    .delete()
+    .eq("id", categoryId);
+
+  revalidatePath("/admin/categories");
+}

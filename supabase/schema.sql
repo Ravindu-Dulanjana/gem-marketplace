@@ -240,6 +240,11 @@ CREATE POLICY "Public profiles are viewable by everyone"
 CREATE POLICY "Users can update own profile"
   ON profiles FOR UPDATE USING (auth.uid() = id);
 
+CREATE POLICY "Admins can update any profile"
+  ON profiles FOR UPDATE USING (
+    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+  );
+
 -- CATEGORIES policies
 CREATE POLICY "Categories are viewable by everyone"
   ON categories FOR SELECT USING (true);

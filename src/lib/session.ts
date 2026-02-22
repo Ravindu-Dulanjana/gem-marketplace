@@ -4,17 +4,8 @@ const SESSION_COOKIE = "gem_session_id";
 
 export async function getSessionId(): Promise<string> {
   const cookieStore = await cookies();
-  let sessionId = cookieStore.get(SESSION_COOKIE)?.value;
+  const sessionId = cookieStore.get(SESSION_COOKIE)?.value;
 
-  if (!sessionId) {
-    sessionId = crypto.randomUUID();
-    cookieStore.set(SESSION_COOKIE, sessionId, {
-      httpOnly: true,
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 365, // 1 year
-      path: "/",
-    });
-  }
-
-  return sessionId;
+  // Cookie is always set by middleware, but fallback just in case
+  return sessionId || "anonymous";
 }

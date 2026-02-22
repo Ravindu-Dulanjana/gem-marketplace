@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
+import { addCategory, deleteCategory } from "@/lib/actions/admin";
 import { FolderOpen, Plus, Trash2 } from "lucide-react";
 
 export default async function AdminCategoriesPage() {
@@ -9,37 +9,6 @@ export default async function AdminCategoriesPage() {
     .from("categories")
     .select("*, gems:gems(count)")
     .order("display_order");
-
-  async function addCategory(formData: FormData) {
-    "use server";
-    const supabase = (await import("@/lib/supabase/server")).createClient();
-    const sb = await supabase;
-
-    const name = formData.get("name") as string;
-    const slug = name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-
-    const maxOrder =
-      categories?.reduce((max, c) => Math.max(max, c.display_order), 0) || 0;
-
-    await sb.from("categories").insert({
-      name,
-      slug,
-      display_order: maxOrder + 1,
-    });
-
-    revalidatePath("/admin/categories");
-  }
-
-  async function deleteCategory(categoryId: string) {
-    "use server";
-    const supabase = (await import("@/lib/supabase/server")).createClient();
-    const sb = await supabase;
-    await sb.from("categories").delete().eq("id", categoryId);
-    revalidatePath("/admin/categories");
-  }
 
   return (
     <div>
